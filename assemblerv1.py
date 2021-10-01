@@ -1,6 +1,16 @@
-def recibirArchivo(data):
-    print()
-    return data
+opcodes = ["MOV", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP", "JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV"]
+functions = []
+
+def leerArchivo(data):
+    archivo = open(data, 'r')
+    line = archivo.readline()
+    while(line):
+        parsed = line.split(" ")
+        if '' in parsed:
+            parsed.remove('')
+        print(parsed)
+        line = archivo.readline()
+    archivo.close()
 
 
 def parser():
@@ -12,6 +22,8 @@ def error():
 def archivoOut():
     pass
 
-def opTable():
-    opcodes = {}
-    return
+def main():
+    data =  "p3F_1.ass" ##input("Ingrese archivo .ass: ")
+    leerArchivo(data)
+
+main()
