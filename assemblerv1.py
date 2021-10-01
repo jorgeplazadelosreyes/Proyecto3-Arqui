@@ -20,6 +20,7 @@ def error():
     pass
 
 def archivoOut():
+    print("hola")
     pass
 
 def main():
