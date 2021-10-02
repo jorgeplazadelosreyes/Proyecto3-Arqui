@@ -10,13 +10,9 @@ def leerCodigo(data):
         parsed = line.split(" ")
         print(parsed)
         if len(parsed) == 1:
-            call = parsed[0].replace('\n','').replace(':','')
-            if call not in functions:
-                functions.append(call)
-            else:
-                print(f"Error: Redefinicion de funcion {call}, linea: {counter} ")
-                flag = True
-
+            flag = checkFunciones(parsed, counter)
+        else:
+            flag = checkOpcodes(parsed, counter)
         line = archivo.readline()
         counter += 1
     archivo.close()
@@ -25,8 +21,22 @@ def leerCodigo(data):
 def leerData():
     pass
 
-def error():
+def checkFunciones(parsed, counter):
+    call = parsed[0].replace('\n','')
+    if call[-1] != ':':             ##revisa si tiene : al final
+        print(f"Error: Syntax error, linea: {counter} ")
+        return True
+    call = call.replace(':','')
+    if call in functions:
+        print(f"Error: Redefinicion de funcion {call}, linea: {counter} ")
+        return True     
+    else:
+        functions.append(call) ##añade a functions
+    return False
+
+def checkOpcodes(parsed, counter):
     pass
+            
 
 def archivoOut():
     print("hola")
@@ -37,3 +47,4 @@ def main():
     leerCodigo(data)
 
 main()
+print(functions)
