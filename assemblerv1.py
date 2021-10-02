@@ -1,4 +1,5 @@
 opcodes = ["MOV", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP", "JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV", "CALL", "RET", "POP", "PUSH"]
+jumps = ["JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV"]
 functions = []
 
 def leerCodigo(data):
@@ -8,7 +9,6 @@ def leerCodigo(data):
     flag = False            ## flag si hay errores en el archivo 
     while(line):
         parsed = line.split(" ")
-        print(parsed)
         if len(parsed) == 1:
             flag = checkFunciones(parsed, counter)
         else:
@@ -31,11 +31,19 @@ def checkFunciones(parsed, counter):
         print(f"Error: Redefinicion de funcion {call}, linea: {counter} ")
         return True     
     else:
-        functions.append(call) ##añade a functions
+        functions.append(call)      ##añade a functions
     return False
 
 def checkOpcodes(parsed, counter):
-    pass
+    parsed[-1] = parsed[-1].replace('\n','')
+    print(parsed)
+    if parsed[0] != '' and parsed[1] != '':  ## revisa identacion
+        print(f"Error: Error de identacion, linea: {counter}")
+        return True
+    if parsed[2] not in opcodes:             ## revisa instrucciones 
+        print(f"Error: Instruccion {parsed[2]} no existe, linea: {counter}")
+        return True
+    return False
             
 
 def archivoOut():
@@ -47,4 +55,3 @@ def main():
     leerCodigo(data)
 
 main()
-print(functions)
