@@ -1,0 +1,33 @@
+DATA:
+    inicio #A0
+    largo 
+    res 0
+
+CODE:
+comparar:
+    MOV B,(inicio) #primera pos
+    MOV A,(B)
+    MOV B,(largo) #ultima pos
+    CMP A,B
+    JEQ siguiente
+    JMP badendig
+
+siguiente:
+    INC (inicio)
+    MOV B,(inicio)
+    MOV A, (largo)
+    SUB A, 1
+    CMP A,B
+    JGE goodending
+    MOV (largo), A
+    JMP comparar
+
+badendig:
+    MOV A,0
+    MOV (res),A 
+    #res = 0 no es palindormo
+
+goodending:
+    MOV A,1
+    MOV (res),A 
+    #res = 0 no es palindormo
