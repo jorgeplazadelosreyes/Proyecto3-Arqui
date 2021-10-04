@@ -1,8 +1,12 @@
 opcodes = ["MOV", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP", "JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV", "CALL", "RET", "POP", "PUSH"]
 jumps = ["JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV"]
-basics = []
+basics = ["MOV", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC"]
+directions = ["MOV", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP"]
 functions = []
 variables = []
+
+## SE CONSIDERA INDENTACION EN ESTE ASSEMBLER DE DOS ESPACIOS PARA OPERACIONES Y DEFINICION DE VARIABLES
+## CAPS SENSITIVE
 
 def leerCodigo(data):
     archivo = open(data, 'r')
@@ -51,7 +55,7 @@ def checkFunciones(data):   ## crea lista con funciones presentes en el archivo
 
 def checkOpcodes(parsed, counter):
     parsed[-1] = parsed[-1].replace('\n','')
-    print(parsed)
+    ##print(parsed)
     if parsed[0] != '' and parsed[1] != '':  ## revisa identacion
         print(f"Error: Error de identacion, linea: {counter}")
         return True
@@ -60,12 +64,23 @@ def checkOpcodes(parsed, counter):
         return True
     if parsed[2] in jumps:
         return checkJumps(parsed[3:], counter)
-    return False
+    operator = uniteString(parsed[3:])
+    if '(' in operator or ')' in operator:
+        checkDiretionning(operator, counter)
+    else:
+        checkBasics(operator, counter)
 
-def checkBasics(args):
+def uniteString(args):
+    unite = ''
+    for arg in args:
+        unite+= arg
+    unite.replace(" ","")
+    return unite
+
+def checkBasics(args, counter):
     pass
 
-def checkDiretionning(args):
+def checkDiretionning(args, counter):
     pass
 
 def checkJumps(args, counter):
