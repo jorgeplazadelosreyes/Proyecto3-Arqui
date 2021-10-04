@@ -5,9 +5,9 @@ DATA:
 
 CODE:
 comparar:
-    MOV B,(inicio) #primera pos
+    MOV B,(inicio) 
     MOV A,(B)
-    MOV B,(largo) #ultima pos
+    MOV B,(largo) 
     CMP A,B
     JEQ siguiente
     JMP badendig
@@ -25,9 +25,7 @@ siguiente:
 badendig:
     MOV A,0
     MOV (res),A 
-    #res = 0 no es palindormo
 
 goodending:
     MOV A,1
     MOV (res),A 
-    #res = 0 no es palindormo
