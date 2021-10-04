@@ -1,9 +1,12 @@
-opcodes = ["MOV", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP", "JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV", "CALL", "RET", "POP", "PUSH"]
+opcodes = ["MOV", "ADD", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP", "JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV", "CALL", "RET", "POP", "PUSH"]
 jumps = ["JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV"]
-basics = ["MOV", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC"]
-directions = ["MOV", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP"]
 functions = []
 variables = []
+basics = {1: ['A,A', 'A,B', 'B,A', 'B,B'], 2: 'B', 3: ['A,B', 'B,A', 'A,Lit', 'B,Lit'] }
+basics1 = ['NOT', 'SHL', 'SHR']
+basics2 = 'INC'
+basics3 =  ['MOV','ADD','SUB','AND','OR','XOR']
+
 
 ## SE CONSIDERA INDENTACION EN ESTE ASSEMBLER DE DOS ESPACIOS PARA OPERACIONES Y DEFINICION DE VARIABLES
 ## CAPS SENSITIVE
@@ -14,14 +17,16 @@ def leerCodigo(data):
     line = archivo.readline()
     counter = 1             ## Contador de lineas
     flag = False            ## flag si hay errores en el archivo 
+    error = False
     while(line):
         parsed = line.split(" ")
-        if len(parsed) > 1:
-            flag = checkOpcodes(parsed, counter)
+        flag = checkOpcodes(parsed, counter)
+        if not flag:
+            error = True
         line = archivo.readline()
         counter += 1
     archivo.close()
-    return flag
+    return error
 
 
 def leerData():
@@ -65,10 +70,10 @@ def checkOpcodes(parsed, counter):
     if parsed[2] in jumps:
         return checkJumps(parsed[3:], counter)
     operator = uniteString(parsed[3:])
-    if '(' in operator or ')' in operator:
-        checkDiretionning(operator, counter)
+    if ('(' in operator or ')' in operator):
+        return checkDiretionning(operator, counter)
     else:
-        checkBasics(operator, counter)
+        return checkBasics(parsed[2],operator,counter)
 
 def uniteString(args):
     unite = ''
@@ -77,31 +82,60 @@ def uniteString(args):
     unite.replace(" ","")
     return unite
 
-def checkBasics(args, counter):
-    pass
+def checkBasics(signal, operator, counter):
+    where = ''
+    if signal in basics1:
+        where = 1
+        if operator not in basics[where]:
+            print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
+            return True
+    if signal == basics2:
+        if operator != 'B':
+            print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
+            return True
+    if signal in basics3:
+        where = 3
+        if operator == 'A,B' or operator == 'B,A':
+            return False
+        if (operator[0] == 'A' or operator[0] == 'B') and operator[1] == ',':
+            operator = operator.split(',')[1]
+            return readlit(operator, counter)
+        else:
+            print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
+            return False
+
+def readlit(operator, counter):
+    lit = operator
+    if '#' in lit:
+        lit = lit.replace('#','')
+        numb = int(lit,16)
+    else:
+        numb = int(lit)
+    if numb < 0 or numb > 256:
+        print(f"Error: Literal {numb} invalido. Linea: {counter}")
+        return True
+    return False
 
 def checkDiretionning(args, counter):
-    pass
+    print('Not ready', counter)
+    return False
 
 def checkJumps(args, counter):
     if len(args) > 1:
         print(f"Error: Muchos argumentos. Linea: {counter}")
         return True
-    if args[0] not in functions:
-        print(f"Error: Funcion {args[0]} no existe. Linea: {counter}") 
-        return True
-    return False
+    return readlit(args[0], counter)
+def readLitDir():
+    pass
 
 def archivoOut():
     print("hola")
     pass
 
 def main():
-    flag = False
-    data =  "p3F_1.ass" ##input("Ingrese archivo .ass: ")
-    flag = checkFunciones(data)
-    flag = leerCodigo(data)
-    print(flag)
+    data =  "p3-ej_correcto.ass" ##input("Ingrese archivo .ass: ")
+    flag1 = checkFunciones(data)
+    flag2 = leerCodigo(data)
     
 
 main()
