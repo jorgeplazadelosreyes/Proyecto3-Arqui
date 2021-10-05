@@ -7,7 +7,10 @@ CODE:
 comparar:
     MOV B,(inicio) 
     MOV A,(B)
-    MOV B,(largo) 
+    ADD B,largo 
+    SUB B,1 
+    MOV largo,B
+    MOV B,(largo)
     CMP A,B
     JEQ siguiente
     JMP badendig
@@ -15,8 +18,8 @@ comparar:
 siguiente:
     INC (inicio)
     MOV B,(inicio)
-    MOV A, (largo)
-    SUB A, 1
+    MOV A,largo
+    SUB A,1
     CMP A,B
     JGE goodending
     MOV (largo), A
@@ -29,3 +32,4 @@ badendig:
 goodending:
     MOV A,1
     MOV (res),A 
+
