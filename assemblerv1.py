@@ -16,7 +16,7 @@ directions2 = ['NOT', 'SHL', 'SHR']
 directions3 = 'MOV'
 directions4 = ['INC','RST']
 
-specials = {1:['A','B'], 2:['']}
+specials = ['A','B','Dir']
 
 justLetters = ['A,(B)', '(B)', 'B,(B)', '(B),A'] 
 
@@ -42,8 +42,10 @@ def leerCodigo(data):
     archivo.close()
     return error, counter
 
-def leerData():
-    pass
+def leerData(data):
+    counter = 0
+    return counter
+    
 
 def checkFunciones(data):   ## crea lista con funciones presentes en el archivo 
     archivo = open(data, 'r')
@@ -85,7 +87,7 @@ def checkOpcodes(parsed, counter):
     if parsed[2] == 'CMP':
         return checkCMP(parsed[2], operator, counter)
     if parsed[2] in specs:
-        return 
+        return checkSpecials(parsed[2], parsed[3:], counter)
     if ('(' in operator or ')' in operator):
         return checkDiretionning(parsed[2], operator, counter)
     else:
@@ -206,7 +208,20 @@ def checkCMP(signal, operator, counter):
         return False
 
 def checkSpecials(signal, operator, counter):
-    pass
+    if signal == "RET":
+        if len(operator) > 0:
+            print(f"Error: Expresion invalida. Linea: {counter}")
+            return True
+    if signal == "POP" or signal == "PUSH":
+        if operator != 'A' and operator != 'B':
+            print(f"Error: Expresion {str(signal)+' '+str(operator[0])} no existe. Linea: {counter}")
+            return True
+    if signal == "CALL":
+        if len(operator) > 1:
+            print(f"Error: Muchos argumentos. Linea: {counter}")
+            return True
+        return readlit(operator[0], counter)
+    return False
 
 def transformDir(operator):
     count = 0
@@ -265,11 +280,14 @@ def archivoOut():
 
 def main():
     data =  "correcto.ass" ##input("Ingrese archivo .ass: ")
+    count1 = leerData(data)
     flag1 = checkFunciones(data)
     flag2,counter = leerCodigo(data)
     if not flag1 and not flag2:
         print("Archivo original valido")
         print(f"Numero de lineas en archivo original: {counter}")
+        print(f"Numero de lineas de data: {count1}")
+        print(f"Numero de lineas en codigo: {counter}")
     
 
 main()
