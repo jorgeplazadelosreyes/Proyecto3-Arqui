@@ -1,6 +1,6 @@
 opcodes = ["MOV", "ADD", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP", "JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV", "CALL", "RET", "POP", "PUSH"]
 jumps = ["JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV"]
-
+specs = ["CALL", "RET", "POP", "PUSH"]
 functions = []
 variables = []
 
@@ -16,7 +16,11 @@ directions2 = ['NOT', 'SHL', 'SHR']
 directions3 = 'MOV'
 directions4 = ['INC','RST']
 
-cmp = ['A,B', 'A,Lit', 'B,Lit', 'A,(Dir)', 'B,(Dir)', 'A,(B)']
+specials = {1:['A','B'], 2:['']}
+
+justLetters = ['A,(B)', '(B)', 'B,(B)', '(B),A'] 
+
+cmp = {1:['A,B', 'A,Lit', 'B,Lit'], 2:['A,(Dir)', 'B,(Dir)', 'A,(B)']}
 
 ## SE CONSIDERA INDENTACION EN ESTE ASSEMBLER DE DOS ESPACIOS PARA OPERACIONES Y DEFINICION DE VARIABLES
 ## CAPS SENSITIVE
@@ -27,17 +31,16 @@ def leerCodigo(data):
     line = archivo.readline()
     counter = 2             ## Contador de lineas
     flag = False            ## flag si hay errores en el archivo 
-    error = False
+    error = False           ## flag global, depende de flag por linea
     while(line):
         parsed = line.split(" ")
         flag = checkOpcodes(parsed, counter)
-        if not flag:
+        if flag:
             error = True
         line = archivo.readline()
         counter += 1
     archivo.close()
-    return error
-
+    return error, counter
 
 def leerData():
     pass
@@ -54,12 +57,12 @@ def checkFunciones(data):   ## crea lista con funciones presentes en el archivo
         if len(parsed) == 1:
             call = parsed[0].replace("\n", "")
             if call[-1] != ':':             ##revisa si tiene : al final
-                print(f"Error: Syntax error, linea: {counter} ")
+                print(f"Error: Syntax error. Linea: {counter} ")
                 flag = True
                 error = True
             call = call.replace(':','')
             if call in functions:
-                print(f"Error: Redefinicion de funcion {call}, linea: {counter} ") 
+                print(f"Error: Redefinicion de funcion {call}. Linea: {counter} ") 
                 flag = True 
                 error = True
             if not error:
@@ -71,14 +74,18 @@ def checkFunciones(data):   ## crea lista con funciones presentes en el archivo
 def checkOpcodes(parsed, counter):
     parsed[-1] = parsed[-1].replace('\n','')
     if parsed[0] != '' and parsed[1] != '':  ## revisa identacion
-        print(f"Error: Error de identacion, linea: {counter}")
+        print(f"Error: Error de identacion. Linea: {counter}")
         return True
     if parsed[2] not in opcodes:             ## revisa instrucciones 
-        print(f"Error: Instruccion {parsed[2]} no existe, linea: {counter}")
+        print(f"Error: Instruccion {parsed[2]} no existe. Linea: {counter}")
         return True
     if parsed[2] in jumps:
         return checkJumps(parsed[3:], counter)
     operator = uniteString(parsed[3:])
+    if parsed[2] == 'CMP':
+        return checkCMP(parsed[2], operator, counter)
+    if parsed[2] in specs:
+        return 
     if ('(' in operator or ')' in operator):
         return checkDiretionning(parsed[2], operator, counter)
     else:
@@ -142,30 +149,71 @@ def checkDiretionning(signal, operator, counter):
         where = 1
         if aux not in directions[where]:
             print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
-            return False
+            return True
+        if aux not in justLetters:
+            lit = parseDir(operator)
+            return readlit(lit,counter)
     if signal in directions2:
         where = 2
         if aux not in directions[where]:
             print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
-            return False
+            return True
+        if aux not in justLetters:
+            lit = parseDir(operator)
+            return readlit(lit,counter)
     if signal in directions3:
         where = 3
         if aux not in directions[where]:
             print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
-            return False
+            return True
+        if aux not in justLetters:
+            lit = parseDir(operator)
+            return readlit(lit,counter)
     if signal in directions4:
         where = 4
         if aux not in directions[where]:
             print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
-            return False
+            return True
+        if aux not in justLetters:
+            lit = parseDir(operator)
+            return readlit(lit,counter)
     return False
+
+def checkCMP(signal, operator, counter):
+    direction = False
+    if '(' in operator or ')' in operator:
+        direction = True
+    splitted = operator.split(',')
+    if not direction:
+        aux = transformLit(operator)
+        if aux not in cmp[1]:
+            print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
+            return True
+        if splitted[1] != 'B':
+            return readlit(splitted[1], counter)
+        return False
+    else:
+        if not checkBrackets(splitted[1]):
+            print(f"Error: Syntax error. Linea: {counter}")
+            return True
+        aux = transformDir(operator)
+        if aux not in cmp[2]:
+            print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
+            return True
+        if aux not in justLetters:
+            lit = parseDir(operator)
+            return readlit(lit,counter)
+        return False
+
+def checkSpecials(signal, operator, counter):
+    pass
 
 def transformDir(operator):
     count = 0
     index = 'False'
     splitted = operator.split(',')
     for i in splitted:
-        if checkBrackets(i) and i != 'A' and i != 'B':
+        if checkBrackets(i) and i != '(A)' and i != '(B)':
             index = count
         count += 1
     if index == 'False':
@@ -176,7 +224,27 @@ def transformDir(operator):
         new = '(Dir),'+str(splitted[1])
     else:
         new = str(splitted[0]) +',(Dir)'
+    new = new.replace(" ","")
     return new
+
+def transformLit(args):
+    splitted = args.split(',')
+    if splitted[0] != 'A' and splitted[0] != 'B':
+        return 'Error'
+    if (splitted[0] == 'A' and splitted[1] == 'B') or (splitted[0] == 'B' and splitted[1] == 'A'):
+        return args
+    new = str(splitted[0]) + ',Lit'
+    return new
+
+def parseDir(args):
+    lit = ''
+    splitted = args.split(',')
+    for i in splitted:
+        if checkBrackets(i):
+            noBrackets = i.replace("(","").replace(")","")
+            for char in noBrackets:
+                lit+=char
+    return lit
 
 def checkBrackets(args):
     if args[0] == '(' and args[-1] == ')':
@@ -196,9 +264,12 @@ def archivoOut():
     pass
 
 def main():
-    data =  "incorrecto.ass" ##input("Ingrese archivo .ass: ")
+    data =  "correcto.ass" ##input("Ingrese archivo .ass: ")
     flag1 = checkFunciones(data)
-    flag2 = leerCodigo(data)
+    flag2,counter = leerCodigo(data)
+    if not flag1 and not flag2:
+        print("Archivo original valido")
+        print(f"Numero de lineas en archivo original: {counter}")
     
 
 main()
