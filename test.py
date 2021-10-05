@@ -1,6 +1,3 @@
-from typing import Literal
-
-
 basics = {1: ['A,A', 'A,B', 'B,A', 'B,B'], 2: 'B', 3: ['A,B', 'B,A', 'A,Lit', 'B,Lit'] }
 basics1 = ['NOT', 'SHL', 'SHR']
 basics2 = 'INC'
@@ -34,5 +31,31 @@ def readlit(operator):
         return True
     return False
     
+x = '\u000A'
 
-check('MOV','A,#10F')
+
+def transformDir(operator):
+    count = 0
+    index = 'False'
+    splitted = operator.split(',')
+    for i in splitted:
+        if checkBrackets(i) and i != 'A' and i != 'B':
+            index = count
+        count += 1
+    if index == 'False':
+        return operator
+    if len(splitted) == 1:
+        new = '(Dir)'
+    if index == 0:
+        new = '(Dir),'+str(splitted[1])
+    else:
+        new = str(splitted[0]) +',(Dir)'
+    return new
+
+
+def checkBrackets(args):
+    if args[0] == '(' and args[-1] == ')':
+        return True
+
+
+print(transformDir("(0),A"))
