@@ -235,6 +235,7 @@ def transformDir(operator):
         return operator
     if len(splitted) == 1:
         new = '(Dir)'
+        return new
     if index == 0:
         new = '(Dir),'+str(splitted[1])
     else:
@@ -279,7 +280,7 @@ def archivoOut():
     pass
 
 def main():
-    data =  "correcto.ass" ##input("Ingrese archivo .ass: ")
+    data =  "p3_1-correccion2.ass" ##input("Ingrese archivo .ass: ")
     count1 = leerData(data)
     flag1 = checkFunciones(data)
     flag2,counter = leerCodigo(data)
