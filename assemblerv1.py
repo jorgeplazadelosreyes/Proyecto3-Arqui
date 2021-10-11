@@ -121,6 +121,9 @@ def checkBasics(signal, operator, counter):
         else:
             print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
             return False
+    else:
+        print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
+        return True
 
 def readlit(operator, counter):
     lit = operator
@@ -233,13 +236,14 @@ def transformDir(operator):
         count += 1
     if index == 'False':
         return operator
-    if len(splitted) == 1:
+    if len(splitted) == 1 and checkBrackets(splitted[0]):
         new = '(Dir)'
         return new
-    if index == 0:
-        new = '(Dir),'+str(splitted[1])
     else:
-        new = str(splitted[0]) +',(Dir)'
+        if index == 0:
+            new = '(Dir),'+str(splitted[1])
+        else:
+            new = str(splitted[0]) +',(Dir)'
     new = new.replace(" ","")
     return new
 
@@ -272,7 +276,7 @@ def checkJumps(args, counter):
         return True
     return readlit(args[0], counter)
 
-def readDir():
+def getOpcode():
     pass
 
 def archivoOut():
