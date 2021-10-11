@@ -1,4 +1,4 @@
-opcodes = ["MOV", "ADD", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP", "JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV", "CALL", "RET", "POP", "PUSH"]
+instructions = ["MOV", "ADD", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP", "JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV", "CALL", "RET", "POP", "PUSH"]
 jumps = ["JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV"]
 specs = ["CALL", "RET", "POP", "PUSH"]
 functions = []
@@ -21,6 +21,8 @@ specials = ['A','B','Dir']
 justLetters = ['A,(B)', '(B)', 'B,(B)', '(B),A'] 
 
 cmp = {1:['A,B', 'A,Lit', 'B,Lit'], 2:['A,(Dir)', 'B,(Dir)', 'A,(B)']}
+
+opcodes = []
 
 ## SE CONSIDERA INDENTACION EN ESTE ASSEMBLER DE DOS ESPACIOS PARA OPERACIONES Y DEFINICION DE VARIABLES
 ## CAPS SENSITIVE
@@ -78,7 +80,7 @@ def checkOpcodes(parsed, counter):
     if parsed[0] != '' and parsed[1] != '':  ## revisa identacion
         print(f"Error: Error de identacion. Linea: {counter}")
         return True
-    if parsed[2] not in opcodes:             ## revisa instrucciones 
+    if parsed[2] not in instructions:             ## revisa instrucciones 
         print(f"Error: Instruccion {parsed[2]} no existe. Linea: {counter}")
         return True
     if parsed[2] in jumps:
@@ -284,7 +286,7 @@ def archivoOut():
     pass
 
 def main():
-    data =  "p3_1-correccion2.ass" ##input("Ingrese archivo .ass: ")
+    data =  "p3_1-correccion1.ass" ##input("Ingrese archivo .ass: ")
     count1 = leerData(data)
     flag1 = checkFunciones(data)
     flag2,counter = leerCodigo(data)
@@ -292,7 +294,7 @@ def main():
         print("Archivo original valido")
         print(f"Numero de lineas en archivo original: {counter}")
         print(f"Numero de lineas de data: {count1}")
-        print(f"Numero de lineas en codigo: {counter}")
+        print(f"Numero de lineas en codigo: {counter-1}")
     
 
 main()
