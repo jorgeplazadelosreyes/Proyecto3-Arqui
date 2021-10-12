@@ -1,0 +1,135 @@
+DATA: 
+    cols_ini 0
+    filas 3
+    cols 3
+    inicio_r #A0
+    inicio_v #A1
+    inicio_a #A2
+    rojos 0
+    verdes 0
+    azules 0
+
+CODE:
+    MOV A,(cols)
+    MOV (cols_ini),A
+    JMP proceso
+
+proceso:
+    MOV B,(inicio_r)
+    MOV A,(B)
+    MOV B,(inicio_v)
+    CMP A,B #se compara rojos y verdes 
+    JEQ rigualv 
+    JGT rmayorv
+    JLT vmayorr 
+
+rigualv: #cuando rojo y verde tienen la misma cantidad 
+    MOV B,(inicio_a)
+    CMP A,B
+    JEQ todosiguales
+    JGT rvmayor
+    JLT amayor
+
+todosiguales: #cuando los tres colores tienen el mismo numero
+    MOV A,(azules)
+    ADD A,1
+    MOV (azules),A
+    MOV A,(verdes)
+    ADD A,1
+    MOV (verdes),A
+    MOV A,(rojos)
+    ADD A,1
+    MOV (rojos),A
+    JMP incrementos
+
+vmayorr: cuando hay mas verde que rojo 
+    MOV A,(B)
+    MOV B,(inicio_a)
+    CMP A,B 
+    JEQ vamayor 
+    JGT vmayor
+    JLT amayor
+
+rmayorv: #cuando hay mas rojo que verde 
+    MOV B,(inicio_a)
+    CMP A,B
+    JEQ ramayor
+    JGT rmayor
+    JLT amayor
+
+ramayor: #cuando rojo y azul son iguales y son los mayores 
+    MOV A,(rojos)
+    ADD A,1
+    MOV (rojos),A
+    MOV A,(azules)
+    ADD A,1
+    MOV (azules),A
+    JMP incrementos
+
+vamayor: #cuando verde y azul son iguales y son los mayores 
+    MOV A,(verdes)
+    ADD A,1
+    MOV (verdes),A
+    MOV A,(azules)
+    ADD A,1
+    MOV (azules),A
+    JMP incrementos
+
+rvmayor: #cuando rojo y verde son iguales y son los mayores 
+    MOV A,(rojos)
+    ADD A,1
+    MOV (rojos),A
+    MOV A,(verdes)
+    ADD A,1
+    MOV (verdes),A
+    JMP incrementos
+
+amayor: #cuando el azul es el mayor 
+    MOV A,(azules)
+    ADD A,1
+    MOV (azules),A
+    JMP incrementos
+    
+vmayor: #cuando el verde es el mayor 
+    MOV A,(verdes)
+    ADD A,1
+    MOV (verdes),A
+    JMP incrementos 
+    
+rmayor: #cuando el rojo es el mayor 
+    MOV A,(rojos)
+    ADD A,1
+    MOV (rojos),A
+    JMP incrementos
+
+incrementos: #aumentamos las direcciones, le restamos 1 a columnas y vemos si ya termino la fila 
+    MOV A,(inicio_r)
+    ADD A,3
+    MOV (inicio_r),A
+    MOV A,(inicio_v)
+    ADD A,3
+    MOV (inicio_v),A
+    MOV A,(inicio_a)
+    ADD A,3
+    MOV (inicio_a),A
+    MOV A,(cols)
+    SUB A,1
+    MOV (cols),A
+    MOV A,(cols)
+    CMP A,0
+    JEQ finfila
+    JMP proceso
+
+finfila: #comparamos las filas con 0 y en caso de ser iguales se termina 
+    MOV A,(filas)
+    CMP A,0
+    JNE sigfila
+
+sigfila: #le restamos un 1 a filas y a columnas lo volvemos a su valor que tenia al inicio 
+    MOV A,(filas)
+    SUB A,1
+    MOV (filas),A
+    MOV A,(cols)
+    MOV A,(cols_ini)
+    MOV (cols),A
+    JMP proceso
