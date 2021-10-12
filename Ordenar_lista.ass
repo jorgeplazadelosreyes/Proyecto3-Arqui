@@ -58,7 +58,7 @@ contador:
     JMP comparar
 aumentador:
     MOV B,(ordn)
-    INC (B)
+    INC B
     MOV (ordn),B
     MOV A,(largo)
     CMP A,B 

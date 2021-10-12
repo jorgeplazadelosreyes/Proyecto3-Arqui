@@ -145,11 +145,12 @@ def readlit(operator, counter):
             return True,0
         numb = int(lit,16)
     else:
-        if not lit.isnumeric():
+        aux = lit.replace("-","")
+        if not aux.isnumeric():
             print(f"Error: Literal invalido. Linea: {counter}")
             return True,0
         numb = int(lit)
-    if numb < 0 or numb > 256:
+    if numb < -256 or numb > 256:
         print(f"Error: Literal {numb} invalido. Linea: {counter}")
         return True,0
     return False,numb
@@ -328,7 +329,10 @@ def getOpcode(arg,lit):
     if (not "Lit" in arg) and (not "Dir" in arg):
         opcodesList.append(str(allOpcodes[arg])+"00000000")
     else:
-        opcodesList.append(str(allOpcodes[arg])+str(format(lit,'08b')))
+        if lit >= 0:
+            opcodesList.append(str(allOpcodes[arg])+str(format(lit,'08b')))
+        else:
+            opcodesList.append(str(allOpcodes[arg])+str(bin((1<<8) - (lit*-1))[2:]))
 def archivoOut():
     arch = open("salida.out",'w')
     for opcode in opcodesList:
@@ -336,7 +340,7 @@ def archivoOut():
     arch.close()
 
 def main():
-    data =  "p3_1-correccion1.ass" ##input("Ingrese archivo .ass: ")
+    data =  "p3_2-correccion2.ass" ##input("Ingrese archivo .ass: ")
     count1 = leerData(data)
     flag1 = checkFunciones(data)
     flag2,counter = leerCodigo(data)
