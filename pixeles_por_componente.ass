@@ -11,7 +11,7 @@ DATA:
 
 CODE:
     MOV A,(cols)
-    MOV cols_ini,A
+    MOV (cols_ini),A
     JMP proceso
 
 proceso:
@@ -31,9 +31,16 @@ rigualv:
     JLT amayor
 
 todosiguales:
-    inc azules 
-    inc verdes 
-    inc rojos
+    MOV A,(azules)
+    ADD A,1
+    MOV (azules),A
+    MOV A,(verdes)
+    ADD A,1
+    MOV (verdes),A
+    MOV A,(rojos)
+    ADD A,1
+    MOV (rojos),A
+    JMP incrementos
 
 vmayorr:
     MOV A,(B)
@@ -123,7 +130,7 @@ sigfila:
     SUB A,1
     MOV (filas),A
     MOV A,(cols)
-    MOV A,cols_ini
+    MOV A,(cols_ini)
     MOV (cols),A
     JMP proceso
 
