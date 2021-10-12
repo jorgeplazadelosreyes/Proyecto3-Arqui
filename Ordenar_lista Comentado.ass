@@ -1,0 +1,87 @@
+DATA:
+    inicio
+    largo 5
+    index 0
+    indexfinal 0
+    aux 0
+    ordn 0
+CODE:
+comparar:
+    MOV B,0
+    MOV (ordn),B #valor numeros ordenados
+
+    MOV B,(inicio)
+    MOV A,(B) 
+    MOV (aux),A #contenido de la lista 
+                #pos INICIO
+
+    MOV (index),B
+    INC (index)
+
+    MOV B,(index)
+    MOV A,B #A Toma mem (inicio + 1)
+
+    MOV B,0
+    ADD B,(largo)
+    MOV (indexfinal),B
+    MOV B,(indexfinal) #B toma mem ultima
+
+    CMP A,B #comparo indexfinal con index actual
+    JGE comprobar
+
+    JMP sort
+
+sort:
+    MOV B,(index) 
+    MOV A,(B) #index
+    MOV B,(aux)
+    MOV B,(B) #index - 1 (inicio)
+
+    CMP A,B
+    JLE mayor
+    JGE menor
+
+    #Iguales
+    INC (inicio)
+    JMP comparar
+
+menor:
+    #paso al siguiente? xd
+    INC (inicio)
+    JMP comparar
+
+mayor:
+    MOV (inicio),A
+    INC (inicio)
+    MOV (inicio),B
+    JMP comparar
+
+
+comprobar:
+    MOV A,0
+    MOV (inicio),A
+    MOV A,1
+    MOV (index),A
+    JMP contador
+
+contador:
+    MOV B,(inicio)
+    MOV A,(B) #Val inicio
+
+    MOV B,(index)
+    MOV B,(B)
+
+    CMP A,B
+    JLE aumentador
+    JMP comparar
+
+aumentador:
+    MOV B,(ordn)
+    INC B
+    MOV (ordn),B
+    MOV A,(largo)
+    CMP A,B 
+    JEQ fin #Los numeros estan ordenados
+            #si los ordn = largo
+    JMP contador
+fin:

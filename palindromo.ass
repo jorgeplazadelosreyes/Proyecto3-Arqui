@@ -5,7 +5,7 @@ DATA:
 
 CODE:
 comparar:
-    MOV B,(inicio) 
+    MOV B,(inicio)
     MOV A,(B)
     MOV B,0
     ADD B,(largo)
