@@ -376,6 +376,7 @@ def checkBrackets(args):
 
 def checkJumps(signal, args, counter):
     if len(args) > 1:
+        print(args)
         print(f"Error: Muchos argumentos. Linea: {counter}")
         return True
     flag,lit = checkLabels(args[0], counter)        
@@ -461,7 +462,7 @@ def checkVariables(operator, counter):
         return flag,numb
 
 def main():
-    data =  "p3F_1.ass" ##input("Ingrese archivo .ass: ")
+    data =  "palindromo.ass" ##input("Ingrese archivo .ass: ")
     flag0,count1 = readData(data)
     flag1 = checkFunciones(data)
     flag2,counter = leerCodigo(data)
@@ -469,7 +470,7 @@ def main():
         print("Archivo original valido")
         print(f"Numero de lineas en archivo original: {counter-1}")
         print(f"Numero de lineas de data: {count1}")
-        print(f"Numero de lineas en codigo: {counter-3-count1}")
+        print(f"Numero de lineas en codigo: {counter-3-count1-len(labels)}")
         archivoOut(data)
         archivoMem(data)
     

@@ -1,67 +1,66 @@
 DATA:
-    inicio
-    largo 5
-    index 0
-    indexfinal 0
-    aux 0
-    ordn 0
+  inicio 0
+  index 0
+  indexfinal 0
+  aux 0
+  ordn 0
+  largo 5
 CODE:
 comparar:
-    MOV B,0
-    MOV (ordn),B 
-    MOV B,(inicio)
-    MOV A,(B) 
-    MOV (aux),A 
-    MOV (index),B
-    INC (index)
-    MOV B,(index)
-    MOV A,B
-    MOV B,0
-    ADD B,(largo)
-    MOV (indexfinal),B
-    MOV B,(indexfinal)
-    CMP A,B
-    JGE comprobar
-    JMP sort
+  MOV B,0
+  MOV (ordn),B 
+  MOV B,(inicio)
+  MOV A,(B) 
+  MOV (aux),A 
+  MOV (index),B
+  INC (index)
+  MOV B,(index)
+  MOV A,B
+  MOV B,0
+  ADD B,(largo)
+  MOV (indexfinal),B
+  MOV B,(indexfinal)
+  CMP A,B
+  JGE comprobar
+  JMP sort
 sort:
-    MOV B,(index) 
-    MOV A,(B) 
-    MOV B,(aux)
-    MOV B,(B) 
-    CMP A,B
-    JLE mayor
-    JGE menor
-    INC (inicio)
-    JMP comparar
+  MOV B,(index) 
+  MOV A,(B) 
+  MOV B,(aux)
+  MOV B,(B) 
+  CMP A,B
+  JLE mayor
+  JGE menor
+  INC (inicio)
+  JMP comparar
 menor:
-    INC (inicio)
-    JMP comparar
-
+  INC (inicio)
+  JMP comparar
 mayor:
-    MOV (inicio),A
-    INC (inicio)
-    MOV (inicio),B
-    JMP comparar
+  MOV (inicio),A
+  INC (inicio)
+  MOV (inicio),B
+  JMP comparar
 comprobar:
-    MOV A,0
-    MOV (inicio),A
-    MOV A,1
-    MOV (index),A
-    JMP contador
+  MOV A,0
+  MOV (inicio),A
+  MOV A,1
+  MOV (index),A
+  JMP contador
 contador:
-    MOV B,(inicio)
-    MOV A,(B) 
-    MOV B,(index)
-    MOV B,(B)
-    CMP A,B
-    JLE aumentador
-    JMP comparar
+  MOV B,(inicio)
+  MOV A,(B) 
+  MOV B,(index)
+  MOV B,(B)
+  CMP A,B
+  JLE aumentador
+  JMP comparar
 aumentador:
-    MOV B,(ordn)
-    INC B
-    MOV (ordn),B
-    MOV A,(largo)
-    CMP A,B 
-    JEQ fin 
-    JMP contador
+  MOV B,(ordn)
+  INC B
+  MOV (ordn),B
+  MOV A,(largo)
+  CMP A,B 
+  JEQ fin
+  JMP contador
 fin:

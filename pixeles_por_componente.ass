@@ -1,136 +1,120 @@
 DATA: 
-    cols_ini 0
-    filas 3
-    cols 3
-    inicio_r #A0
-    inicio_v #A1
-    inicio_a #A2
-    rojos 0
-    verdes 0
-    azules 0
-
+  cols_ini 0
+  filas 3
+  cols 3
+  inicio_r #A0
+  inicio_v #A1
+  inicio_a #A2
+  rojos 0
+  verdes 0
+  azules 0
 CODE:
-    MOV A,(cols)
-    MOV (cols_ini),A
-    JMP proceso
-
+  MOV A,(cols)
+  MOV (cols_ini),A
+  JMP proceso
 proceso:
-    MOV B,(inicio_r)
-    MOV A,(B)
-    MOV B,(inicio_v)
-    CMP A,B
-    JEQ rigualv 
-    JGT rmayorv
-    JLT vmayorr 
-
+  MOV B,(inicio_r)
+  MOV A,(B)
+  MOV B,(inicio_v)
+  CMP A,B
+  JEQ rigualv
+  JGT rmayorv
+  JLT vmayorr
 rigualv:
-    MOV B,(inicio_a)
-    CMP A,B
-    JEQ todosiguales
-    JGT rvmayor
-    JLT amayor
-
+  MOV B,(inicio_a)
+  CMP A,B
+  JEQ todosiguales
+  JGT rvmayor
+  JLT amayor
 todosiguales:
-    MOV A,(azules)
-    ADD A,1
-    MOV (azules),A
-    MOV A,(verdes)
-    ADD A,1
-    MOV (verdes),A
-    MOV A,(rojos)
-    ADD A,1
-    MOV (rojos),A
-    JMP incrementos
-
+  MOV A,(azules)
+  ADD A,1
+  MOV (azules),A
+  MOV A,(verdes)
+  ADD A,1
+  MOV (verdes),A
+  MOV A,(rojos)
+  ADD A,1
+  MOV (rojos),A
+  JMP incrementos
 vmayorr:
-    MOV A,(B)
-    MOV B,(inicio_a)
-    CMP A,B 
-    JEQ vamayor 
-    JGT vmayor
-    JLT amayor
-
+  MOV A,(B)
+  MOV B,(inicio_a)
+  CMP A,B 
+  JEQ vamayor
+  JGT vmayor
+  JLT amayor
 rmayorv:
-    MOV B,(inicio_a)
-    CMP A,B
-    JEQ ramayor
-    JGT rmayor
-    JLT amayor
-
+  MOV B,(inicio_a)
+  CMP A,B
+  JEQ ramayor
+  JGT rmayor
+  JLT amayor
 ramayor:
-    MOV A,(rojos)
-    ADD A,1
-    MOV (rojos),A
-    MOV A,(azules)
-    ADD A,1
-    MOV (azules),A
-    JMP incrementos
-
+  MOV A,(rojos)
+  ADD A,1
+  MOV (rojos),A
+  MOV A,(azules)
+  ADD A,1
+  MOV (azules),A
+  JMP incrementos
 vamayor:
-    MOV A,(verdes)
-    ADD A,1
-    MOV (verdes),A
-    MOV A,(azules)
-    ADD A,1
-    MOV (azules),A
-    JMP incrementos
-
+  MOV A,(verdes)
+  ADD A,1
+  MOV (verdes),A
+  MOV A,(azules)
+  ADD A,1
+  MOV (azules),A
+  JMP incrementos
 rvmayor:
-    MOV A,(rojos)
-    ADD A,1
-    MOV (rojos),A
-    MOV A,(verdes)
-    ADD A,1
-    MOV (verdes),A
-    JMP incrementos
-
+  MOV A,(rojos)
+  ADD A,1
+  MOV (rojos),A
+  MOV A,(verdes)
+  ADD A,1
+  MOV (verdes),A
+  JMP incrementos
 amayor:
-    MOV A,(azules)
-    ADD A,1
-    MOV (azules),A
-    JMP incrementos
-    
+  MOV A,(azules)
+  ADD A,1
+  MOV (azules),A
+  JMP incrementos
 vmayor:
-    MOV A,(verdes)
-    ADD A,1
-    MOV (verdes),A
-    JMP incrementos 
-    
+  MOV A,(verdes)
+  ADD A,1
+  MOV (verdes),A
+  JMP incrementos
 rmayor:
-    MOV A,(rojos)
-    ADD A,1
-    MOV (rojos),A
-    JMP incrementos
-
+  MOV A,(rojos)
+  ADD A,1
+  MOV (rojos),A
+  JMP incrementos
 incrementos:
-    MOV A,(inicio_r)
-    ADD A,3
-    MOV (inicio_r),A
-    MOV A,(inicio_v)
-    ADD A,3
-    MOV (inicio_v),A
-    MOV A,(inicio_a)
-    ADD A,3
-    MOV (inicio_a),A
-    MOV A,(cols)
-    SUB A,1
-    MOV (cols),A
-    MOV A,(cols)
-    CMP A,0
-    JEQ finfila
-    JMP proceso
-
+  MOV A,(inicio_r)
+  ADD A,3
+  MOV (inicio_r),A
+  MOV A,(inicio_v)
+  ADD A,3
+  MOV (inicio_v),A
+  MOV A,(inicio_a)
+  ADD A,3
+  MOV (inicio_a),A
+  MOV A,(cols)
+  SUB A,1
+  MOV (cols),A
+  MOV A,(cols)
+  CMP A,0
+  JEQ finfila
+  JMP proceso
 finfila:
-    MOV A,(filas)
-    CMP A,0
-    JNE sigfila
-
+  MOV A,(filas)
+  CMP A,0
+  JNE sigfila
 sigfila:
-    MOV A,(filas)
-    SUB A,1
-    MOV (filas),A
-    MOV A,(cols)
-    MOV A,(cols_ini)
-    MOV (cols),A
-    JMP proceso
-
+  MOV A,(filas)
+  SUB A,1
+  MOV (filas),A
+  MOV A,(cols)
+  MOV A,(cols_ini)
+  MOV (cols),A
+  JMP proceso

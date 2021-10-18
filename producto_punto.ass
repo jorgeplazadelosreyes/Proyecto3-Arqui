@@ -1,60 +1,53 @@
 DATA: 
-    inicio1
-    inicio2
-    n
-    pp 0
-    aux 0
+  inicio1 0
+  inicio2 0
+  n 0
+  pp 0
+  aux 0
 CODE:
 nums:
-    MOV B,(inicio1)
-    MOV A,(B)
-    MOV B,(inicio2)
-    MOV B,(B)
-    MOV (aux),B
-
-    CMP B,1
-    JEQ porunoB
-    CMP A,1
-    JEQ porunoA
-    CMP A,0
-    JEQ siguiente
-    CMP B,0
-    JEQ siguiente
-
-    SUB A,1
-    JMP producto
-
+  MOV B,(inicio1)
+  MOV A,(B)
+  MOV B,(inicio2)
+  MOV B,(B)
+  MOV (aux),B
+  CMP B,1
+  JEQ porunoB
+  CMP A,1
+  JEQ porunoA
+  CMP A,0
+  JEQ siguiente
+  CMP B,0
+  JEQ siguiente
+  SUB A,1
+  JMP producto
 porunoB:
-    MOV B,(pp)
-    ADD B,A 
-    MOV (pp),B
-    JMP siguiente
+  MOV B,(pp)
+  ADD B,A 
+  MOV (pp),B
+  JMP siguiente
 porunoA:
-    MOV A,(pp)
-    ADD A,B
-    MOV (pp),A 
-    JMP siguiente
-
+  MOV A,(pp)
+  ADD A,B
+  MOV (pp),A 
+  JMP siguiente
 producto:
-    ADD B,(aux)
-    SUB A,1
-    CMP A,0
-    JEQ siguiente
-    JMP producto
-
+  ADD B,(aux)
+  SUB A,1
+  CMP A,0
+  JEQ siguiente
+  JMP producto
 siguiente:
-    MOV A,(pp)
-    ADD A,B 
-    MOV (pp),A
-
-    INC (inicio1)
-    INC (inicio2)
-    MOV A,n
-    SUB A,1
-    CMP A,0
-    JEQ resultado
-    JMP nums
-
+  MOV A,(pp)
+  ADD A,B 
+  MOV (pp),A
+  INC (inicio1)
+  INC (inicio2)
+  MOV A,(n)
+  SUB A,1
+  CMP A,0
+  JEQ resultado
+  JMP nums
 resultado:
-    MOV A,(pp)
-    MOV (pp),A
+  MOV A,(pp)
+  MOV (pp),A
