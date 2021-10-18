@@ -3,12 +3,15 @@ from opcodes import allOpcodes
 instructions = ["MOV", "ADD", "SUB", "AND", "OR", "NOT", "XOR", "SHL", "SHR", "INC", "RST", "CMP", "JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV", "CALL", "RET", "POP", "PUSH"]
 jumps = ["JMP", "JEQ", "JNE", "JGT", "JLT", "JGE", "JLE", "JCR", "JOV"]
 specs = ["CALL", "RET", "POP", "PUSH"]
-functions = []
-variables = []
 
-basics = {1: ['A,A', 'A,B', 'B,A', 'B,B'], 2: 'B', 3: ['A,B', 'B,A', 'A,Lit', 'B,Lit']}
+labels = []
+variables = []
+salidaMem = []
+opcodesList = []
+
+basics = {1: ['A,A', 'A,B', 'B,A', 'B,B'], 2: ['B'], 3: ['A,B', 'B,A', 'A,Lit', 'B,Lit']}
 basics1 = ['NOT', 'SHL', 'SHR']
-basics2 = 'INC'
+basics2 = ['INC']
 basics3 =  ['MOV','ADD','SUB','AND','OR','XOR']
 
 directions = {1: ['A,(Dir)', 'B,(Dir)', 'A,(B)', '(Dir)'], 2:['(Dir),A', '(Dir),B', '(B)'], 3: ['A,(Dir)', 'B,(Dir)', '(Dir),A', '(Dir),B'
@@ -24,21 +27,27 @@ justLetters = ['A,(B)', '(B)', 'B,(B)', '(B),A']
 
 cmp = {1:['A,B', 'A,Lit', 'B,Lit'], 2:['A,(Dir)', 'B,(Dir)', 'A,(B)']}
 
-opcodesList = []
-
 ## SE CONSIDERA INDENTACION EN ESTE ASSEMBLER DE DOS ESPACIOS PARA OPERACIONES Y DEFINICION DE VARIABLES
 ## CAPS SENSITIVE
 
 def leerCodigo(data):
     archivo = open(data, 'r')
     line = archivo.readline()
+    counter = 1
+    while line:
+        line =line.replace("\n","")
+        if line == "CODE:":
+            break
+        line = archivo.readline()
+        counter += 1 
     line = archivo.readline()
-    counter = 2             ## Contador de lineas
-    flag = False            ## flag si hay errores en el archivo 
+    counter += 1  
     error = False           ## flag global, depende de flag por linea
     while(line):
+        flag = False      
         parsed = line.split(" ")
-        flag = checkOpcodes(parsed, counter)
+        if len(parsed) > 1:
+            flag = checkOpcodes(parsed, counter)
         if flag:
             error = True
         line = archivo.readline()
@@ -46,16 +55,62 @@ def leerCodigo(data):
     archivo.close()
     return error, counter
 
-def leerData(data):
-    counter = 0
-    return counter
+def readData(data):
+    arch = open(data,'r')
+    line = arch.readline()
+    line = arch.readline()
+    counter = 2
+    error = False
+    while line:
+        flag = False
+        line =line.replace("\n","")
+        if line == "CODE:":
+            break
+        flag = getVariables(line, counter)
+        if flag:
+            error = True
+        line = arch.readline()
+        counter += 1
+    arch.close()
+    return error, (counter-2)
     
+def getVariables(line, counter):
+    parsed = line.split(" ")
+    if len(parsed) != 4:
+        print(f"Error: syntax error. Linea: {counter}")
+        return True
+    if parsed[0] != '' and parsed[1] != '':
+        print(f"Error: Error de identacion. Linea: {counter}")
+        return True
+    nombre = parsed[2]
+    lit = parsed[3]
+    if nombre == '' or lit == '':
+         print(f"Error: syntax error. Linea: {counter}")
+         return True
+    variables.append(nombre)
+    flag,lit = readlit(lit, counter)
+    if not flag:
+        litToBinary(lit)
+    return False
+
+def litToBinary(lit):
+    if lit >= 0:
+        salidaMem.append(str(format(lit,'08b')))
+    else:
+        salidaMem.append(str(bin((1<<8) - (lit*-1))[2:]))
 
 def checkFunciones(data):   ## crea lista con funciones presentes en el archivo 
     archivo = open(data, 'r')
     line = archivo.readline()
+    counter = 1
+    while line:
+        line =line.replace("\n","")
+        if line == "CODE:":
+            break
+        line = archivo.readline()
+        counter += 1
     line = archivo.readline()
-    counter = 2
+    counter += 1
     flag = False
     while (line):
         error = False
@@ -67,13 +122,14 @@ def checkFunciones(data):   ## crea lista con funciones presentes en el archivo
                 flag = True
                 error = True
             call = call.replace(':','')
-            if call in functions:
+            if call in labels:
                 print(f"Error: Redefinicion de funcion {call}. Linea: {counter} ") 
                 flag = True 
                 error = True
             if not error:
-                functions.append(call)      ##añade a functions
+                labels.append(call)      ##añade a functions
         line = archivo.readline()
+        counter += 1
     archivo.close()
     return flag
 
@@ -112,11 +168,14 @@ def checkBasics(signal, operator, counter):
             print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
             return True
         getOpcode(str(signal)+' '+str(operator),0)
-    if signal == basics2:
-        if operator != 'B':
+        return False
+    if signal in basics2:
+        where = 2
+        if operator not in basics[where]:
             print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
             return True
         getOpcode(str(signal)+' '+str(operator),0)
+        return False
     if signal in basics3:
         where = 3
         aux = transformLit(operator)
@@ -169,7 +228,7 @@ def checkDiretionning(signal, operator, counter):
             return True
         if aux not in justLetters:
             lit = parseDir(operator)
-            flag,lit = readlit(lit, counter)
+            flag,lit = checkVariables(lit, counter)
             if not flag:
                 getOpcode(str(signal)+' '+str(aux),lit)
             return flag
@@ -182,7 +241,7 @@ def checkDiretionning(signal, operator, counter):
             return True
         if aux not in justLetters:
             lit = parseDir(operator)
-            flag,lit = readlit(lit, counter)
+            flag,lit = checkVariables(lit, counter)
             if not flag:
                 getOpcode(str(signal)+' '+str(aux),lit)
             return flag
@@ -195,7 +254,7 @@ def checkDiretionning(signal, operator, counter):
             return True
         if aux not in justLetters:
             lit = parseDir(operator)
-            flag,lit = readlit(lit, counter)
+            flag,lit = checkVariables(lit, counter)
             if not flag:
                 getOpcode(str(signal)+' '+str(aux),lit)
             return flag
@@ -208,7 +267,7 @@ def checkDiretionning(signal, operator, counter):
             return True
         if aux not in justLetters:
             lit = parseDir(operator)
-            flag,lit = readlit(lit, counter)
+            flag,lit = checkVariables(lit, counter)
             if not flag:
                 getOpcode(str(signal)+' '+str(aux),lit)
             return flag
@@ -242,7 +301,7 @@ def checkCMP(signal, operator, counter):
             return True
         if aux not in justLetters:
             lit = parseDir(operator)
-            flag,lit = readlit(lit, counter)
+            flag,lit = checkVariables(lit, counter)
             if not flag:
                 getOpcode(str(signal)+' '+str(aux),lit)
                 return flag
@@ -319,13 +378,12 @@ def checkJumps(signal, args, counter):
     if len(args) > 1:
         print(f"Error: Muchos argumentos. Linea: {counter}")
         return True
-    flag,lit = readlit(args[0], counter)        
+    flag,lit = checkLabels(args[0], counter)        
     if not flag:
         getOpcode(str(signal)+' '+"Dir",lit)
     return flag
 
-def getOpcode(arg,lit):
-    #print(arg,":",str(allOpcodes[arg]),str(format(lit,'08b')))
+def getOpcode(arg,lit): 
     if (not "Lit" in arg) and (not "Dir" in arg):
         opcodesList.append(str(allOpcodes[arg])+"00000000")
     else:
@@ -333,23 +391,87 @@ def getOpcode(arg,lit):
             opcodesList.append(str(allOpcodes[arg])+str(format(lit,'08b')))
         else:
             opcodesList.append(str(allOpcodes[arg])+str(bin((1<<8) - (lit*-1))[2:]))
-def archivoOut():
-    arch = open("salida.out",'w')
+
+def archivoOut(data):
+    arch = open(str(data)[:-3]+".out", 'w')
     for opcode in opcodesList:
         arch.write(opcode+str('\n'))
     arch.close()
 
+def archivoMem(data):
+    arch = open(str(data)[:-3]+".mem", 'w')
+    for data in salidaMem:
+        arch.write(data+str('\n'))
+    arch.close()
+
+def checkLabels(operator, counter):
+    lit = operator
+    flag = False
+    numb = 0
+    if '#' in lit:
+        lit = lit.replace('#','')
+        if not lit.isalnum():
+            flag = True
+        else:
+            numb = int(lit,16)
+    else:
+        aux = lit.replace("-","")
+        if not aux.isnumeric():
+            flag = True
+        else:
+            numb = int(lit)
+    if numb < -256 or numb > 256:
+        print(f"Error: Literal {numb} invalido. Linea: {counter}")
+        return True,numb
+    if flag:
+        if operator not in labels:
+            print(f"Error: Etiqueta {operator} invalida. Linea: {counter}")
+            return True,numb
+        else:
+            return False,numb
+    else:
+        return flag,numb
+
+def checkVariables(operator, counter):
+    lit = operator
+    flag = False
+    numb = 0
+    if '#' in lit:
+        lit = lit.replace('#','')
+        if not lit.isalnum():
+            flag = True
+        else:
+            numb = int(lit,16)
+    else:
+        aux = lit.replace("-","")
+        if not aux.isnumeric():
+            flag = True
+        else:
+            numb = int(lit)
+    if numb < -256 or numb > 256:
+        print(f"Error: Literal {numb} invalido. Linea: {counter}")
+        return True,numb
+    if flag:
+        if operator not in variables:
+            print(f"Error: Data {operator} invalida. Linea: {counter}")
+            return True,numb
+        else:
+            return False,numb
+    else:
+        return flag,numb
+
 def main():
-    data =  "p3_2-correccion2.ass" ##input("Ingrese archivo .ass: ")
-    count1 = leerData(data)
+    data =  "p3F_1.ass" ##input("Ingrese archivo .ass: ")
+    flag0,count1 = readData(data)
     flag1 = checkFunciones(data)
     flag2,counter = leerCodigo(data)
-    if not flag1 and not flag2:
+    if not flag1 and not flag2 and not flag0:
         print("Archivo original valido")
         print(f"Numero de lineas en archivo original: {counter-1}")
         print(f"Numero de lineas de data: {count1}")
-        print(f"Numero de lineas en codigo: {counter-2}")
-        archivoOut()
+        print(f"Numero de lineas en codigo: {counter-3-count1}")
+        archivoOut(data)
+        archivoMem(data)
     
 
 main()

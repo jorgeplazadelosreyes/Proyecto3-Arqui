@@ -1,35 +1,31 @@
 DATA:
-    inicio #A0
-    largo 
-    res 0
-
+  inicio #A0
+  largo 0
+  res 0
 CODE:
 comparar:
-    MOV B,(inicio)
-    MOV A,(B)
-    MOV B,0
-    ADD B,(largo)
-    SUB B,1 
-    MOV (largo),B
-    MOV B,(largo)
-    CMP A,B
-    JEQ siguiente
-    JMP badendig
-
+  MOV B,(inicio)
+  MOV A,(B)
+  MOV B,0
+  ADD B,(largo)
+  SUB B,1 
+  MOV (largo),B
+  MOV B,(largo)
+  CMP A,B
+  JEQ siguiente
+  JMP badendig
 siguiente:
-    INC (inicio)
-    MOV B,(inicio)
-    MOV A,(largo)
-    SUB A,1
-    CMP A,B
-    JGE goodending
-    MOV (largo), A
-    JMP comparar
-
+  INC (inicio)
+  MOV B,(inicio)
+  MOV A,(largo)
+  SUB A,1
+  CMP A,B
+  JGE goodending
+  MOV (largo), A
+  JMP comparar
 badendig:
-    MOV A,0
-    MOV (res),A 
-
+  MOV A,0
+  MOV (res),A 
 goodending:
-    MOV A,1
-    MOV (res),A 
+  MOV A,1
+  MOV (res),A 
