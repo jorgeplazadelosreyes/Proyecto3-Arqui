@@ -219,7 +219,7 @@ def readlit(operator, counter):
             print(f"Error: Literal invalido. Linea: {counter}")
             return True,0
         numb = int(lit)
-    if numb < -256 or numb > 256:
+    if numb < -128 or numb > 255:
         print(f"Error: Literal {numb} invalido. Linea: {counter}")
         return True,0
     return False,numb
@@ -452,7 +452,7 @@ def checkLabels(operator, counter):
             flag = True
         else:
             numb = int(lit)
-    if numb < -256 or numb > 256:
+    if numb < -128 or numb > 255:
         print(f"Error: Literal {numb} invalido. Linea: {counter}")
         return True,0
     if flag:
@@ -480,7 +480,7 @@ def checkVariables(operator, counter):
             flag = True
         else:
             numb = int(lit)
-    if numb < -256 or numb > 256:
+    if numb < -128 or numb > 255:
         print(f"Error: Literal {numb} invalido. Linea: {counter}")
         return True,0
     if flag:
@@ -493,7 +493,7 @@ def checkVariables(operator, counter):
         return flag,numb
 
 def main():
-    data =  "p3_2-correccion1.ass" ##input("Ingrese archivo .ass: ")
+    data =  input("Ingrese archivo .ass: ")
     flag0,count1 = readData(data)
     flag1 = checkFunciones(data)
     flag2,counter = leerCodigo(data)
