@@ -21,15 +21,15 @@ nums:
   JEQ siguiente
   SUB A,1
   JMP producto
-porunoB:
-  MOV B,(pp)
-  ADD B,A 
-  MOV (pp),B
-  JMP siguiente
 porunoA:
   MOV A,(pp)
   ADD A,B
   MOV (pp),A 
+  JMP siguiente
+porunoB:
+  MOV B,(pp)
+  ADD B,A 
+  MOV (pp),B
   JMP siguiente
 producto:
   ADD B,(aux)
