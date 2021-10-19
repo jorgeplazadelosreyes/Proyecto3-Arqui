@@ -8,6 +8,7 @@ labels = []
 variables = []
 salidaMem = []
 opcodesList = []
+directory = {}
 
 basics = {1: ['A,A', 'A,B', 'B,A', 'B,B'], 2: ['B'], 3: ['A,B', 'B,A', 'A,Lit', 'B,Lit']}
 basics1 = ['NOT', 'SHL', 'SHR']
@@ -57,10 +58,15 @@ def leerCodigo(data):
 
 def readData(data):
     arch = open(data,'r')
-    line = arch.readline()
-    line = arch.readline()
-    counter = 2
     error = False
+    line = arch.readline()
+    line =line.replace("\n","")
+    if line == "CODE:":
+        return error, 0
+    line = arch.readline()
+    if line == "CODE:":
+        return error, 0
+    counter = 2
     while line:
         flag = False
         line =line.replace("\n","")
@@ -87,11 +93,12 @@ def getVariables(line, counter):
     if nombre == '' or lit == '':
          print(f"Error: syntax error. Linea: {counter}")
          return True
-    variables.append(nombre)
     flag,lit = readlit(lit, counter)
     if not flag:
         litToBinary(lit)
-    return False
+        variables.append(nombre)
+        directory[nombre] = str(format(counter-2,'08b'))
+    return flag
 
 def litToBinary(lit):
     if lit >= 0:
@@ -111,6 +118,7 @@ def checkFunciones(data):   ## crea lista con funciones presentes en el archivo
         counter += 1
     line = archivo.readline()
     counter += 1
+    fcount = 0
     flag = False
     while (line):
         error = False
@@ -128,8 +136,10 @@ def checkFunciones(data):   ## crea lista con funciones presentes en el archivo
                 error = True
             if not error:
                 labels.append(call)      ##añade a functions
+                directory[call] = str(format(fcount,'08b'))
         line = archivo.readline()
         counter += 1
+        fcount += 1
     archivo.close()
     return flag
 
@@ -167,14 +177,14 @@ def checkBasics(signal, operator, counter):
         if operator not in basics[where]:
             print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
             return True
-        getOpcode(str(signal)+' '+str(operator),0)
+        getOpcode(str(signal)+' '+str(operator),0,False)
         return False
     if signal in basics2:
         where = 2
         if operator not in basics[where]:
             print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
             return True
-        getOpcode(str(signal)+' '+str(operator),0)
+        getOpcode(str(signal)+' '+str(operator),0,False)
         return False
     if signal in basics3:
         where = 3
@@ -186,10 +196,10 @@ def checkBasics(signal, operator, counter):
             numb = operator.split(',')[1]
             flag,lit = readlit(numb, counter)
             if not flag:
-                getOpcode(str(signal)+' '+str(aux),lit)
+                getOpcode(str(signal)+' '+str(aux),lit,False)
             return flag
         else:
-            getOpcode(str(signal)+' '+str(aux),0)
+            getOpcode(str(signal)+' '+str(aux),0,False)
             return False
     else:
         print(f"Error: Expresion {str(signal)+' '+str(operator)} no existe. Linea: {counter}")
@@ -228,12 +238,15 @@ def checkDiretionning(signal, operator, counter):
             return True
         if aux not in justLetters:
             lit = parseDir(operator)
-            flag,lit = checkVariables(lit, counter)
+            flag,var = checkVariables(lit, counter)
             if not flag:
-                getOpcode(str(signal)+' '+str(aux),lit)
+                if var == "Var":
+                    getOpcode(str(signal)+' '+str(aux),lit,True)
+                else:
+                    getOpcode(str(signal)+' '+str(aux),var,False)
             return flag
         else:
-            getOpcode(str(signal)+' '+str(aux),0)
+            getOpcode(str(signal)+' '+str(aux),0,False)
     if signal in directions2:
         where = 2
         if aux not in directions[where]:
@@ -241,12 +254,15 @@ def checkDiretionning(signal, operator, counter):
             return True
         if aux not in justLetters:
             lit = parseDir(operator)
-            flag,lit = checkVariables(lit, counter)
+            flag,var = checkVariables(lit, counter)
             if not flag:
-                getOpcode(str(signal)+' '+str(aux),lit)
+                if var == "Var":
+                    getOpcode(str(signal)+' '+str(aux),lit,True)
+                else:
+                    getOpcode(str(signal)+' '+str(aux),var,False)
             return flag
         else:
-            getOpcode(str(signal)+' '+str(aux),0)
+            getOpcode(str(signal)+' '+str(aux),0,False)
     if signal in directions3:
         where = 3
         if aux not in directions[where]:
@@ -254,12 +270,15 @@ def checkDiretionning(signal, operator, counter):
             return True
         if aux not in justLetters:
             lit = parseDir(operator)
-            flag,lit = checkVariables(lit, counter)
+            flag,var = checkVariables(lit, counter)
             if not flag:
-                getOpcode(str(signal)+' '+str(aux),lit)
+                if var == "Var":
+                    getOpcode(str(signal)+' '+str(aux),lit,True)
+                else:
+                    getOpcode(str(signal)+' '+str(aux),var,False)
             return flag
         else:
-            getOpcode(str(signal)+' '+str(aux),0)
+            getOpcode(str(signal)+' '+str(aux),0,False)
     if signal in directions4:
         where = 4
         if aux not in directions[where]:
@@ -267,12 +286,15 @@ def checkDiretionning(signal, operator, counter):
             return True
         if aux not in justLetters:
             lit = parseDir(operator)
-            flag,lit = checkVariables(lit, counter)
+            flag,var = checkVariables(lit, counter)
             if not flag:
-                getOpcode(str(signal)+' '+str(aux),lit)
+                if var == "Var":
+                    getOpcode(str(signal)+' '+str(aux),lit,True)
+                else:
+                    getOpcode(str(signal)+' '+str(aux),var,False)
             return flag
         else:
-            getOpcode(str(signal)+' '+str(aux),0)
+            getOpcode(str(signal)+' '+str(aux),0,False)
     return False
 
 def checkCMP(signal, operator, counter):
@@ -288,8 +310,9 @@ def checkCMP(signal, operator, counter):
         if splitted[1] != 'B':
             flag,lit = readlit(splitted[1], counter)
             if not flag:
-                getOpcode(str(signal)+' '+str(aux),lit)
+                getOpcode(str(signal)+' '+str(aux),lit,False)
             return flag
+        getOpcode(str(signal)+' '+str(aux),0,False)
         return False
     else:
         if not checkBrackets(splitted[1]):
@@ -301,34 +324,36 @@ def checkCMP(signal, operator, counter):
             return True
         if aux not in justLetters:
             lit = parseDir(operator)
-            flag,lit = checkVariables(lit, counter)
+            flag,var = checkVariables(lit, counter)
             if not flag:
-                getOpcode(str(signal)+' '+str(aux),lit)
-                return flag
-            else:
-                getOpcode(str(signal)+' '+str(aux),0)
-        return False
+                if var == "Var":
+                    getOpcode(str(signal)+' '+str(aux),lit,True)
+                else:
+                    getOpcode(str(signal)+' '+str(aux),var,False)
+            return flag
 
 def checkSpecials(signal, operator, counter):
     if signal == "RET":
         if len(operator) > 0:
             print(f"Error: Expresion invalida. Linea: {counter}")
             return True
-        getOpcode(str(signal),0)
+        getOpcode(str(signal),0,False)
     if signal == "POP" or signal == "PUSH":
         if operator != 'A' and operator != 'B':
             print(f"Error: Expresion {str(signal)+' '+str(operator[0])} no existe. Linea: {counter}")
             return True
-        getOpcode(str(signal)+' '+str(operator),0)
+        getOpcode(str(signal)+' '+str(operator),0,False)
     if signal == "CALL":
         if len(operator) > 1:
             print(f"Error: Muchos argumentos. Linea: {counter}")
             return True
-        flag,lit = readlit(operator[0], counter)        
+        flag,var = checkLabels(operator[0], counter) 
         if not flag:
-            getOpcode(str(signal)+' '+"Dir",lit)
+            if var == "Var":
+                getOpcode(str(signal)+' '+"Dir",operator[0],True)
+            else:
+                getOpcode(str(signal)+' '+"Dir",var,False)
         return flag
-    return False
 
 def transformDir(operator):
     count = 0
@@ -379,19 +404,25 @@ def checkJumps(signal, args, counter):
         print(args)
         print(f"Error: Muchos argumentos. Linea: {counter}")
         return True
-    flag,lit = checkLabels(args[0], counter)        
+    flag,var = checkLabels(args[0], counter) 
     if not flag:
-        getOpcode(str(signal)+' '+"Dir",lit)
+        if var == "Var":
+            getOpcode(str(signal)+' '+"Dir",args[0],True)
+        else:
+            getOpcode(str(signal)+' '+"Dir",var,False)
     return flag
 
-def getOpcode(arg,lit): 
+def getOpcode(arg,lit,director): 
     if (not "Lit" in arg) and (not "Dir" in arg):
         opcodesList.append(str(allOpcodes[arg])+"00000000")
     else:
-        if lit >= 0:
-            opcodesList.append(str(allOpcodes[arg])+str(format(lit,'08b')))
+        if director:
+            opcodesList.append(str(allOpcodes[arg])+str(directory[lit]))
         else:
-            opcodesList.append(str(allOpcodes[arg])+str(bin((1<<8) - (lit*-1))[2:]))
+            if lit >= 0:
+                opcodesList.append(str(allOpcodes[arg])+str(format(lit,'08b')))
+            else:
+                opcodesList.append(str(allOpcodes[arg])+str(bin((1<<8) - (lit*-1))[2:]))
 
 def archivoOut(data):
     arch = open(str(data)[:-3]+".out", 'w')
@@ -423,13 +454,13 @@ def checkLabels(operator, counter):
             numb = int(lit)
     if numb < -256 or numb > 256:
         print(f"Error: Literal {numb} invalido. Linea: {counter}")
-        return True,numb
+        return True,0
     if flag:
         if operator not in labels:
             print(f"Error: Etiqueta {operator} invalida. Linea: {counter}")
-            return True,numb
+            return True,0
         else:
-            return False,numb
+            return False,"Var"
     else:
         return flag,numb
 
@@ -451,18 +482,18 @@ def checkVariables(operator, counter):
             numb = int(lit)
     if numb < -256 or numb > 256:
         print(f"Error: Literal {numb} invalido. Linea: {counter}")
-        return True,numb
+        return True,0
     if flag:
         if operator not in variables:
             print(f"Error: Data {operator} invalida. Linea: {counter}")
-            return True,numb
+            return True,0
         else:
-            return False,numb
+            return False,"Var"
     else:
         return flag,numb
 
 def main():
-    data =  "palindromo.ass" ##input("Ingrese archivo .ass: ")
+    data =  "p3_2-correccion1.ass" ##input("Ingrese archivo .ass: ")
     flag0,count1 = readData(data)
     flag1 = checkFunciones(data)
     flag2,counter = leerCodigo(data)
@@ -472,7 +503,8 @@ def main():
         print(f"Numero de lineas de data: {count1}")
         print(f"Numero de lineas en codigo: {counter-3-count1-len(labels)}")
         archivoOut(data)
-        archivoMem(data)
+        if len(salidaMem) > 0:
+            archivoMem(data)
     
 
 main()
